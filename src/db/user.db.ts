@@ -27,11 +27,12 @@ export async function addUser(userData: UserDateType) {
         updatedAt: new Date(),
     });
     user = await user.save();
+    return user;
 }
 
-export async function updateUser(username: string, userData: UserDateType) {
+export async function updateUser(userId: string, userData: UserDateType) {
     let user = await UserModel.findOneAndUpdate(
-        { username: username },
+        { _id: userId },
         { ...userData },
         { returnDocument: "after" }
     );

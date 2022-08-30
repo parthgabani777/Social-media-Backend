@@ -2,9 +2,9 @@ import jwt from "jsonwebtoken";
 
 const LOCAL_SECRET_KEY = "no_secret";
 
-export function signUsernameToken(username: string) {
+export function signUsernameToken(userId: string) {
     return jwt.sign(
-        { username: username },
+        { userId: userId },
         process.env.SECRET_KEY || LOCAL_SECRET_KEY,
         { expiresIn: 86400 }
     );

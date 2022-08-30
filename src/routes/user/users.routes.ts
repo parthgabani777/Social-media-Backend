@@ -33,7 +33,7 @@ userRouter.post("/edit", RequiresAuth, async (req, res, next) => {
         }
         const userData = req.body;
 
-        let updatedUserData = await updateUser(req.user.username, userData);
+        let updatedUserData = await updateUser(req.user.userId, userData);
         res.status(200).send(responseDataSerialize({ user: updatedUserData }));
     } catch (error) {
         next(error);

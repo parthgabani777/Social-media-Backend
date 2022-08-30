@@ -1,5 +1,12 @@
 import Express from "express";
-import { getAllPosts, getPost, getUserPosts } from "../../db/post.db";
+import {
+    addPost,
+    deletePost,
+    getAllPosts,
+    getPost,
+    getUserPosts,
+    updatePost,
+} from "../../db/post.db";
 import { RequiresAuth } from "../../middleware/auth.middleware";
 import { responseDataSerialize } from "../../serialize";
 
@@ -16,7 +23,9 @@ postRouter.get("/", async (req, res, next) => {
 
 postRouter.post("/", RequiresAuth, async (req, res, next) => {
     try {
-        const post = req.body;
+        const postData = req.body;
+        const post = await addPost(postData, req.user.userId);
+        res.status(200).send(responseDataSerialize({ posts: post }));
     } catch (error) {
         next(error);
     }
@@ -27,6 +36,28 @@ postRouter.get("/:postId", async (req, res, next) => {
         const postId = req.params.postId;
         const post = await getPost(postId);
         res.status(200).send(responseDataSerialize({ post: post }));
+    } catch (error) {
+        next(error);
+    }
+});
+
+postRouter.delete("/:postId", RequiresAuth, async (req, res, next) => {
+    try {
+        const postId = req.params.postId;
+        await deletePost(postId, req.user.userId);
+        res.status(200).send();
+    } catch (error) {
+        next(error);
+    }
+});
+
+postRouter.post("/:postId", RequiresAuth, async (req, res, next) => {
+    try {
+        const postId = req.params.postId;
+        const userId = req.user.userId;
+        const postData = req.body;
+        await updatePost(postId, userId, postData);
+        res.status(200).send();
     } catch (error) {
         next(error);
     }

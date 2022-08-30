@@ -19,8 +19,8 @@ interface SignUpCredentialsType extends LoginCredentialsType {
 authRouter.post("/signup", async (req, res, next) => {
     try {
         const userSignupData: SignUpCredentialsType = req.body;
-        await addUser(userSignupData);
-        const token = signUsernameToken(userSignupData.username);
+        const { _id } = await addUser(userSignupData);
+        const token = signUsernameToken(_id.toString());
         res.status(200).send(responseDataSerialize({ encodedToken: token }));
     } catch (error) {
         next(error);
@@ -44,7 +44,7 @@ authRouter.post("/login", async (req, res, next) => {
         }
 
         // sign a token
-        const token = signUsernameToken(username);
+        const token = signUsernameToken(user._id.toString());
 
         res.status(200).send(responseDataSerialize({ encodedToken: token }));
     } catch (error) {

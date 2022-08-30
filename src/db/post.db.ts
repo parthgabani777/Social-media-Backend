@@ -21,21 +21,47 @@ export async function getUserPosts(username: string) {
 
 interface AddPostDataType {
     content: string;
-    username: string;
 }
 
-export async function addPost(postData: AddPostDataType) {
+export async function addPost(postData: AddPostDataType, userId: string) {
     const post = new PostModel({
         ...postData,
+        userId: userId,
         createdAt: new Date(),
         updatedAt: new Date(),
         likes: {
-            likesCount: 0,
+            likeCount: 0,
             likedBy: [],
             dislikedBy: [],
         },
         comments: [],
     });
 
-    await post.save();
+    const addedPost = await post.save();
+    return addedPost;
+}
+
+export async function deletePost(postId: string, userId: string) {
+    const post = await PostModel.deleteOne({ _id: postId, userId: userId });
+    console.log(post);
+    if (post.deletedCount === 0) {
+        throw new HttpException(400, "Can't find post");
+    }
+    return post;
+}
+
+export async function updatePost(
+    postId: string,
+    userId: string,
+    postData: AddPostDataType
+) {
+    const post = await PostModel.findOneAndUpdate(
+        { _id: postId, userId: userId },
+        { ...postData },
+        { returnDocument: "after" }
+    );
+    if (!post) {
+        throw new HttpException(400, "Can't find post");
+    }
+    return post;
 }

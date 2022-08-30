@@ -6,5 +6,5 @@ interface UserInterface {
 }
 
 interface JWTAuthTokenInterface {
-    username: string;
+    userId: string;
 }
