@@ -37,27 +37,11 @@ export const errorHandler: ErrorRequestHandler = (error, req, res, next) => {
             break;
         case Error:
             messages.push({ message: error.message });
+            break;
         default:
             messages.push({ message: String(error) });
     }
 
-    // if (error instanceof mongoose.Error.ValidationError) {
-    //     status = 409;
-    //     for (let field in error.errors) {
-    //         let message = {
-    //             field: field,
-    //             message: error.errors[field].message,
-    //         };
-    //         messages.push(message);
-    //     }
-    // } else if (error instanceof HttpException) {
-    //     status = error.statusCode;
-    //     messages.push({ messages: error.message });
-    // } else if (error instanceof Error) {
-    //     messages.push({ message: error.message });
-    // } else {
-    //     messages.push({ message: String(error) });
-    // }
     const serializedError = responseErrorSerialize(messages);
     res.status(status).json(serializedError);
 };

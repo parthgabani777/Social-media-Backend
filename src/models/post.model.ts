@@ -2,7 +2,7 @@ import mongoose, { Schema } from "mongoose";
 import { UserModel } from "./user.model";
 
 export const CommentSchema = new mongoose.Schema({
-    userId: { type: Schema.Types.ObjectId, ref: UserModel },
+    userId: { type: Schema.Types.ObjectId, ref: UserModel, required: true },
     text: { type: String, required: true },
     votes: {
         upvotedBy: [{ type: Schema.Types.ObjectId, ref: UserModel }],
