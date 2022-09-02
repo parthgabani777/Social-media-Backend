@@ -65,3 +65,35 @@ export async function updatePost(
     }
     return post;
 }
+
+export async function likePost(postId: string, userId: string) {
+    const post = await PostModel.findOneAndUpdate(
+        { _id: postId, "likes.likedBy": { $nin: userId } },
+        {
+            $push: { "likes.likedBy": userId },
+            $pull: { "likes.dislikedBy": userId },
+            $inc: { "likes.likeCount": 1 },
+        },
+        { returnDocument: "after" }
+    );
+    if (!post) {
+        throw new HttpException(400, "can't find post.");
+    }
+    return post;
+}
+
+export async function dislikePost(postId: string, userId: string) {
+    const post = await PostModel.findOneAndUpdate(
+        { _id: postId, "likes.dislikedBy": { $nin: userId } },
+        {
+            $push: { "likes.dislikedBy": userId },
+            $pull: { "likes.likedBy": userId },
+            $inc: { "likes.likeCount": -1 },
+        },
+        { returnDocument: "after" }
+    );
+    if (!post) {
+        throw new HttpException(400, "can't find post.");
+    }
+    return post;
+}

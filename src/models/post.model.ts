@@ -14,7 +14,7 @@ export const CommentSchema = new mongoose.Schema({
 export const PostSchema = new mongoose.Schema({
     content: { type: String, required: true },
     likes: {
-        likeCount: { type: String, required: true },
+        likeCount: { type: Number, required: true },
         likedBy: [{ type: Schema.Types.ObjectId, ref: UserModel }],
         dislikedBy: [{ type: Schema.Types.ObjectId, ref: UserModel }],
     },

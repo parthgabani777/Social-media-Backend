@@ -2,9 +2,11 @@ import Express from "express";
 import {
     addPost,
     deletePost,
+    dislikePost,
     getAllPosts,
     getPost,
     getUserPosts,
+    likePost,
     updatePost,
 } from "../../db/post.db";
 import { RequiresAuth } from "../../middleware/auth.middleware";
@@ -68,6 +70,30 @@ postRouter.get("/user/:username", async (req, res, next) => {
         const username = req.params.username;
         const userPosts = await getUserPosts(username);
         res.status(200).send(responseDataSerialize({ posts: userPosts }));
+    } catch (error) {
+        next(error);
+    }
+});
+
+postRouter.post("/like/:postId", RequiresAuth, async (req, res, next) => {
+    try {
+        const postId = req.params.postId;
+        const userId = req.user.userId;
+
+        const post = await likePost(postId, userId);
+        res.status(200).send(responseDataSerialize({ posts: post }));
+    } catch (error) {
+        next(error);
+    }
+});
+
+postRouter.post("/dislike/:postId", RequiresAuth, async (req, res, next) => {
+    try {
+        const postId = req.params.postId;
+        const userId = req.user.userId;
+
+        const post = await dislikePost(postId, userId);
+        res.status(200).send(responseDataSerialize({ posts: post }));
     } catch (error) {
         next(error);
     }
