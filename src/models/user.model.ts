@@ -1,5 +1,6 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import { HttpException } from "../error";
+import { PostModel } from "./post.model";
 
 const passwordFormatValidator = async function (password: string) {
     return password.match(
@@ -33,6 +34,19 @@ export const UserSchema = new mongoose.Schema({
             message: "Password Format is wrong",
         },
     },
+    bookmarks: [{ type: Schema.Types.ObjectId, ref: "Post" }],
+    followings: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+        },
+    ],
+    followers: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+        },
+    ],
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
     picture: { type: String },

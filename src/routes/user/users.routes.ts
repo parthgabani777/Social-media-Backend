@@ -1,5 +1,11 @@
 import express from "express";
-import { getAllUsers, getUserByUsername } from "../../db/user.db";
+import {
+    addBookmark,
+    getAllUsers,
+    getBookmarks,
+    getUserByUsername,
+    removeBookmark,
+} from "../../db/user.db";
 import { responseDataSerialize } from "../../serialize";
 import { HttpException } from "../../error";
 import { updateUser } from "../../db/user.db";
@@ -16,16 +22,6 @@ userRouter.get("/", async (req, res, next) => {
     }
 });
 
-userRouter.get("/:usedId", async (req, res, next) => {
-    try {
-        const userId = req.params.usedId;
-        const userData = await getUserByUsername(userId);
-        res.status(200).send(responseDataSerialize({ user: userData }));
-    } catch (error) {
-        next(error);
-    }
-});
-
 userRouter.post("/edit", RequiresAuth, async (req, res, next) => {
     try {
         if (!req.user) {
@@ -35,6 +31,54 @@ userRouter.post("/edit", RequiresAuth, async (req, res, next) => {
 
         let updatedUserData = await updateUser(req.user.userId, userData);
         res.status(200).send(responseDataSerialize({ user: updatedUserData }));
+    } catch (error) {
+        next(error);
+    }
+});
+
+userRouter.get("/bookmark", RequiresAuth, async (req, res, next) => {
+    try {
+        const userId = req.user.userId;
+        const bookmarks = await getBookmarks(userId);
+        res.status(200).send(responseDataSerialize({ bookmarks: bookmarks }));
+    } catch (error) {
+        next(error);
+    }
+});
+
+userRouter.post("/bookmark/:postId", RequiresAuth, async (req, res, next) => {
+    try {
+        const userId = req.user.userId;
+        const postId = req.params.postId;
+        const bookmarks = await addBookmark(userId, postId);
+        res.status(200).send(responseDataSerialize({ bookmarks: bookmarks }));
+    } catch (error) {
+        next(error);
+    }
+});
+
+userRouter.post(
+    "/remove-bookmark/:postId",
+    RequiresAuth,
+    async (req, res, next) => {
+        try {
+            const userId = req.user.userId;
+            const postId = req.params.postId;
+            const bookmarks = await removeBookmark(userId, postId);
+            res.status(200).send(
+                responseDataSerialize({ bookmarks: bookmarks })
+            );
+        } catch (error) {
+            next(error);
+        }
+    }
+);
+
+userRouter.get("/:usedId", async (req, res, next) => {
+    try {
+        const userId = req.params.usedId;
+        const userData = await getUserByUsername(userId);
+        res.status(200).send(responseDataSerialize({ user: userData }));
     } catch (error) {
         next(error);
     }

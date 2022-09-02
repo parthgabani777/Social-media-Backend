@@ -5,15 +5,7 @@ import bodyParser from "body-parser";
 import { userRouter } from "./routes/user/users.routes";
 import { errorHandler, HttpException } from "./error";
 import { postRouter } from "./routes/post/post.routes";
-import {
-    addComment,
-    editComment,
-    getComments,
-    deleteComment,
-} from "./db/comment.db";
-import { CommentSchema } from "./models/post.model";
 import { commentRouter } from "./routes/comment/comment.routes";
-import { dislikePost, likePost } from "./db/post.db";
 
 require("dotenv").config();
 const port = process.env.PORT;
@@ -35,15 +27,9 @@ app.get("/", async (req, res, next) => {
 
     const postId1 = "62ff7dba80f88f1793e01fa3";
     // const postId2 = "630dd734c88b281f305adefc";
-    const arr = [
-        "62ff7dba80f88f1793e01f9d",
-        "62ff7dba80f88f1793e01fa1",
-        "62ff7dba80f88f1793e01f9f",
-    ];
 
     const comment1 = "63106b6e8229418c95e42ba2";
 
-    await likePost(postId1, tanay_userId);
     next();
 });
 

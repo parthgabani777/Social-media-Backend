@@ -38,3 +38,38 @@ export async function updateUser(userId: string, userData: UserDateType) {
     );
     return user;
 }
+export async function addBookmark(userId: string, postId: string) {
+    const updateWriteResult = await UserModel.updateOne(
+        { _id: userId },
+        { $addToSet: { bookmarks: postId } }
+    );
+    if (updateWriteResult.matchedCount === 0) {
+        throw new HttpException(400, "UserID does not exist.");
+    }
+    if (updateWriteResult.modifiedCount === 0) {
+        throw new HttpException(400, "Post is already bookmarked.");
+    }
+    return getBookmarks(userId);
+}
+
+export async function removeBookmark(userId: string, postId: string) {
+    const updateWriteResult = await UserModel.updateOne(
+        { _id: userId },
+        { $pull: { bookmarks: postId } }
+    );
+    if (updateWriteResult.matchedCount === 0) {
+        throw new HttpException(400, "UserID does not exist.");
+    }
+    if (updateWriteResult.modifiedCount === 0) {
+        throw new HttpException(400, "Post is already not bookmarked.");
+    }
+    return getBookmarks(userId);
+}
+
+export async function getBookmarks(userId: string) {
+    const user = await UserModel.findOne({ _id: userId });
+    if (!user) {
+        throw new HttpException(400, "Can't find User.");
+    }
+    return user.bookmarks;
+}
