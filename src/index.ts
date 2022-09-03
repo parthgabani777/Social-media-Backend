@@ -15,6 +15,10 @@ app.use(bodyParser.json());
 
 dbConnect();
 
+app.use("/", (req, res) => {
+    res.status(200).send();
+});
+
 app.use("/auth", authRouter);
 app.use("/users", userRouter);
 app.use("/posts", postRouter);
@@ -29,3 +33,5 @@ app.use(errorHandler);
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);
 });
+
+export default app;
