@@ -1,10 +1,12 @@
 import express from "express";
 import {
     addBookmark,
+    followUser,
     getAllUsers,
     getBookmarks,
     getUserByUsername,
     removeBookmark,
+    unfollowUser,
 } from "../../db/user.db";
 import { responseDataSerialize } from "../../serialize";
 import { HttpException } from "../../error";
@@ -83,5 +85,55 @@ userRouter.get("/:usedId", async (req, res, next) => {
         next(error);
     }
 });
+
+userRouter.post(
+    "/follow/:followUserId",
+    RequiresAuth,
+    async (req, res, next) => {
+        try {
+            const userId = req.user.userId;
+            const followUserId = req.params.followUserId;
+
+            const { user, followUser: followUserData } = await followUser(
+                userId,
+                followUserId
+            );
+
+            res.status(200).send(
+                responseDataSerialize({
+                    user: user,
+                    followUser: followUserData,
+                })
+            );
+        } catch (error) {
+            next(error);
+        }
+    }
+);
+
+userRouter.post(
+    "/unfollow/:followUserId",
+    RequiresAuth,
+    async (req, res, next) => {
+        try {
+            const userId = req.user.userId;
+            const followUserId = req.params.followUserId;
+
+            const { user, followUser: followUserData } = await unfollowUser(
+                userId,
+                followUserId
+            );
+
+            res.status(200).send(
+                responseDataSerialize({
+                    user: user,
+                    followUser: followUserData,
+                })
+            );
+        } catch (error) {
+            next(error);
+        }
+    }
+);
 
 export { userRouter };

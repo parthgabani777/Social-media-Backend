@@ -20,19 +20,6 @@ app.use("/users", userRouter);
 app.use("/posts", postRouter);
 app.use("/comments", commentRouter);
 
-app.get("/", async (req, res, next) => {
-    const tanay_userId = "62ff7e7e80f88f1793e01fa9";
-    // const parth_userId = "6304e8dd99b56a3ffbe23ec6";
-    // const userId1 = "62ff7e7e80f88f1793e01fa7";
-
-    const postId1 = "62ff7dba80f88f1793e01fa3";
-    // const postId2 = "630dd734c88b281f305adefc";
-
-    const comment1 = "63106b6e8229418c95e42ba2";
-
-    next();
-});
-
 app.use((req, res) => {
     throw new HttpException(404, "Can't find provided routes");
 });

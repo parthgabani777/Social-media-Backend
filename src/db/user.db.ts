@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { HttpException } from "../error";
 import { UserModel } from "../models/user.model";
 
@@ -38,6 +39,15 @@ export async function updateUser(userId: string, userData: UserDateType) {
     );
     return user;
 }
+
+export async function getBookmarks(userId: string) {
+    const user = await UserModel.findOne({ _id: userId });
+    if (!user) {
+        throw new HttpException(400, "Can't find User.");
+    }
+    return user.bookmarks;
+}
+
 export async function addBookmark(userId: string, postId: string) {
     const updateWriteResult = await UserModel.updateOne(
         { _id: userId },
@@ -66,10 +76,58 @@ export async function removeBookmark(userId: string, postId: string) {
     return getBookmarks(userId);
 }
 
-export async function getBookmarks(userId: string) {
-    const user = await UserModel.findOne({ _id: userId });
-    if (!user) {
-        throw new HttpException(400, "Can't find User.");
+export async function followUser(userId: string, followUserId: string) {
+    const session = await mongoose.startSession();
+
+    try {
+        let user, followUser;
+        await session.withTransaction(async () => {
+            followUser = await UserModel.findOneAndUpdate(
+                { _id: followUserId },
+                { $addToSet: { followers: userId } },
+                { returnDocument: "after", session: session }
+            );
+
+            user = await UserModel.findOneAndUpdate(
+                { _id: userId },
+                { $addToSet: { followings: followUserId } },
+                { returnDocument: "after", session: session }
+            );
+
+            if (!user || !followUser) {
+                throw new HttpException(400, "can't find user.");
+            }
+        });
+        return { user, followUser };
+    } finally {
+        await session.endSession();
     }
-    return user.bookmarks;
+}
+
+export async function unfollowUser(userId: string, followUserId: string) {
+    const session = await mongoose.startSession();
+
+    try {
+        let followUser, user;
+        await session.withTransaction(async () => {
+            followUser = await UserModel.findOneAndUpdate(
+                { _id: followUserId },
+                { $pull: { followers: userId } },
+                { returnDocument: "after", session: session }
+            );
+
+            user = await UserModel.findOneAndUpdate(
+                { _id: userId },
+                { $pull: { followings: followUserId } },
+                { returnDocument: "after", session: session }
+            );
+
+            if (!user || !followUser) {
+                throw new HttpException(400, "can't find user.");
+            }
+        });
+        return { user, followUser };
+    } finally {
+        await session.endSession();
+    }
 }
