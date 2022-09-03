@@ -16,7 +16,7 @@ app.use(bodyParser.json());
 dbConnect();
 
 app.use("/", (req, res) => {
-    res.status(200).send();
+    res.status(200).json("Hello world");
 });
 
 app.use("/auth", authRouter);
