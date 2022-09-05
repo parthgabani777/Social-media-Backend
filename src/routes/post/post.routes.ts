@@ -25,9 +25,9 @@ postRouter.get("/", async (req, res, next) => {
 
 postRouter.post("/", RequiresAuth, async (req, res, next) => {
     try {
-        const postData = req.body;
-        const post = await addPost(postData, req.user.userId);
-        res.status(200).send(responseDataSerialize({ posts: post }));
+        const { postData } = req.body;
+        const posts = await addPost(postData, req.user.userId);
+        res.status(200).send(responseDataSerialize({ posts: posts }));
     } catch (error) {
         next(error);
     }
@@ -46,20 +46,20 @@ postRouter.get("/:postId", async (req, res, next) => {
 postRouter.delete("/:postId", RequiresAuth, async (req, res, next) => {
     try {
         const postId = req.params.postId;
-        await deletePost(postId, req.user.userId);
-        res.status(200).send();
+        const posts = await deletePost(postId, req.user.userId);
+        res.status(200).send(responseDataSerialize({ posts: posts }));
     } catch (error) {
         next(error);
     }
 });
 
-postRouter.post("/:postId", RequiresAuth, async (req, res, next) => {
+postRouter.post("/edit/:postId", RequiresAuth, async (req, res, next) => {
     try {
         const postId = req.params.postId;
         const userId = req.user.userId;
-        const postData = req.body;
-        await updatePost(postId, userId, postData);
-        res.status(200).send();
+        const { postData } = req.body;
+        const posts = await updatePost(postId, userId, postData);
+        res.status(200).send(responseDataSerialize({ posts: posts }));
     } catch (error) {
         next(error);
     }

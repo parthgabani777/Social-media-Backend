@@ -2,20 +2,24 @@ import { HttpException } from "../error";
 import { PostModel } from "../models/post.model";
 
 export async function getAllPosts() {
-    const allPosts = await PostModel.find();
+    const allPosts = await PostModel.find().populate("postCreatedBy");
     return allPosts;
 }
 
 export async function getPost(postId: string) {
-    const post = await PostModel.findOne({ _id: postId });
+    const post = await PostModel.findOne({ _id: postId })
+        .populate("postCreatedBy")
+        .populate("comments.commentedBy");
     if (!post) {
-        throw new HttpException(409, "post does not exist");
+        throw new HttpException(404, "post does not exist");
     }
     return post;
 }
 
 export async function getUserPosts(username: string) {
-    const posts = await PostModel.find({ username: username });
+    const posts = await PostModel.find({ postCreatedBy: username }).populate(
+        "postCreatedBy"
+    );
     return posts;
 }
 
@@ -26,7 +30,7 @@ interface AddPostDataType {
 export async function addPost(postData: AddPostDataType, userId: string) {
     const post = new PostModel({
         ...postData,
-        userId: userId,
+        postCreatedBy: userId,
         createdAt: new Date(),
         updatedAt: new Date(),
         likes: {
@@ -37,17 +41,16 @@ export async function addPost(postData: AddPostDataType, userId: string) {
         comments: [],
     });
 
-    const addedPost = await post.save();
-    return addedPost;
+    await post.save();
+    return getAllPosts();
 }
 
 export async function deletePost(postId: string, userId: string) {
     const post = await PostModel.deleteOne({ _id: postId, userId: userId });
-    console.log(post);
     if (post.deletedCount === 0) {
-        throw new HttpException(400, "Can't find post");
+        throw new HttpException(404, "Can't find post");
     }
-    return post;
+    return getAllPosts();
 }
 
 export async function updatePost(
@@ -61,9 +64,9 @@ export async function updatePost(
         { returnDocument: "after" }
     );
     if (!post) {
-        throw new HttpException(400, "Can't find post");
+        throw new HttpException(404, "Can't find post");
     }
-    return post;
+    return getAllPosts();
 }
 
 export async function likePost(postId: string, userId: string) {
@@ -77,9 +80,12 @@ export async function likePost(postId: string, userId: string) {
         { returnDocument: "after" }
     );
     if (!post) {
-        throw new HttpException(400, "can't find post.");
+        throw new HttpException(
+            400,
+            "can't find post or you have already liked post."
+        );
     }
-    return post;
+    return getAllPosts();
 }
 
 export async function dislikePost(postId: string, userId: string) {
@@ -93,7 +99,10 @@ export async function dislikePost(postId: string, userId: string) {
         { returnDocument: "after" }
     );
     if (!post) {
-        throw new HttpException(400, "can't find post.");
+        throw new HttpException(
+            400,
+            "can't find post or you have already disliked post."
+        );
     }
-    return post;
+    return getAllPosts();
 }

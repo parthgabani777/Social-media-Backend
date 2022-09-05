@@ -8,3 +8,10 @@ interface UserInterface {
 interface JWTAuthTokenInterface {
     userId: string;
 }
+
+interface EditUserDataInterface {
+    username: string;
+    firstName: string;
+    lastName: string;
+    password: string;
+}

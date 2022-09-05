@@ -19,9 +19,11 @@ interface SignUpCredentialsType extends LoginCredentialsType {
 authRouter.post("/signup", async (req, res, next) => {
     try {
         const userSignupData: SignUpCredentialsType = req.body;
-        const { _id } = await addUser(userSignupData);
-        const token = signUsernameToken(_id.toString());
-        res.status(200).send(responseDataSerialize({ encodedToken: token }));
+        const user = await addUser(userSignupData);
+        const token = signUsernameToken(user._id.toString());
+        res.status(200).send(
+            responseDataSerialize({ encodedToken: token, createdUser: user })
+        );
     } catch (error) {
         next(error);
     }
@@ -31,22 +33,20 @@ authRouter.post("/login", async (req, res, next) => {
     try {
         const { username, password }: LoginCredentialsType = req.body;
 
-        // checking for username and password exist
         if (!username || !password) {
             return res.status(400).send();
         }
-
-        // validate username and password
         const user = await getUserByUsername(username);
 
         if (user.password !== password) {
-            throw new HttpException(403, "Password does not match.");
+            throw new HttpException(401, "Password does not match.");
         }
 
-        // sign a token
         const token = signUsernameToken(user._id.toString());
 
-        res.status(200).send(responseDataSerialize({ encodedToken: token }));
+        res.status(200).send(
+            responseDataSerialize({ encodedToken: token, foundUser: user })
+        );
     } catch (error) {
         next(error);
     }

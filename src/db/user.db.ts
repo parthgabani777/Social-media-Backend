@@ -2,36 +2,43 @@ import mongoose from "mongoose";
 import { HttpException } from "../error";
 import { UserModel } from "../models/user.model";
 
-interface UserDateType {
-    firstName: string;
-    lastName: string;
-    password: string;
-}
-
 export async function getAllUsers() {
     const users = await UserModel.find();
     return users;
 }
 
 export async function getUserByUsername(username: string) {
-    const user = await UserModel.findOne({ username: username });
+    const user = await UserModel.findOne({ username: username }).populate(
+        "bookmarks"
+    );
     if (!user) {
-        throw new HttpException(401, "Username doest not exist");
+        throw new HttpException(404, "Username doest not exist");
     }
     return user;
 }
 
-export async function addUser(userData: UserDateType) {
+export async function getUserByUserId(userId: string) {
+    const user = await UserModel.findOne({ _id: userId });
+    if (!user) {
+        throw new HttpException(404, "UserId doest not exist");
+    }
+    return user;
+}
+
+export async function addUser(userData: UserInterface) {
     let user = new UserModel({
         ...userData,
         createdAt: new Date(),
         updatedAt: new Date(),
     });
-    user = await user.save();
+    user = await (await user.save()).populate("bookmarks");
     return user;
 }
 
-export async function updateUser(userId: string, userData: UserDateType) {
+export async function updateUser(
+    userId: string,
+    userData: EditUserDataInterface
+) {
     let user = await UserModel.findOneAndUpdate(
         { _id: userId },
         { ...userData },
@@ -41,9 +48,12 @@ export async function updateUser(userId: string, userData: UserDateType) {
 }
 
 export async function getBookmarks(userId: string) {
-    const user = await UserModel.findOne({ _id: userId });
+    const user = await UserModel.findOne({ _id: userId }).populate({
+        path: "bookmarks",
+        populate: "postCreatedBy",
+    });
     if (!user) {
-        throw new HttpException(400, "Can't find User.");
+        throw new HttpException(404, "Can't find User.");
     }
     return user.bookmarks;
 }
@@ -54,7 +64,7 @@ export async function addBookmark(userId: string, postId: string) {
         { $addToSet: { bookmarks: postId } }
     );
     if (updateWriteResult.matchedCount === 0) {
-        throw new HttpException(400, "UserID does not exist.");
+        throw new HttpException(404, "UserID does not exist.");
     }
     if (updateWriteResult.modifiedCount === 0) {
         throw new HttpException(400, "Post is already bookmarked.");
@@ -68,7 +78,7 @@ export async function removeBookmark(userId: string, postId: string) {
         { $pull: { bookmarks: postId } }
     );
     if (updateWriteResult.matchedCount === 0) {
-        throw new HttpException(400, "UserID does not exist.");
+        throw new HttpException(404, "UserID does not exist.");
     }
     if (updateWriteResult.modifiedCount === 0) {
         throw new HttpException(400, "Post is already not bookmarked.");
@@ -77,6 +87,10 @@ export async function removeBookmark(userId: string, postId: string) {
 }
 
 export async function followUser(userId: string, followUserId: string) {
+    if (userId === followUserId) {
+        throw new HttpException(400, "Can't follow yourself");
+    }
+
     const session = await mongoose.startSession();
 
     try {
@@ -92,10 +106,10 @@ export async function followUser(userId: string, followUserId: string) {
                 { _id: userId },
                 { $addToSet: { followings: followUserId } },
                 { returnDocument: "after", session: session }
-            );
+            ).populate("bookmarks");
 
             if (!user || !followUser) {
-                throw new HttpException(400, "can't find user.");
+                throw new HttpException(404, "can't find user.");
             }
         });
         return { user, followUser };
@@ -105,6 +119,10 @@ export async function followUser(userId: string, followUserId: string) {
 }
 
 export async function unfollowUser(userId: string, followUserId: string) {
+    if (userId === followUserId) {
+        throw new HttpException(400, "Can't unfollow yourself");
+    }
+
     const session = await mongoose.startSession();
 
     try {
@@ -120,10 +138,10 @@ export async function unfollowUser(userId: string, followUserId: string) {
                 { _id: userId },
                 { $pull: { followings: followUserId } },
                 { returnDocument: "after", session: session }
-            );
+            ).populate("bookmarks");
 
             if (!user || !followUser) {
-                throw new HttpException(400, "can't find user.");
+                throw new HttpException(404, "can't find user.");
             }
         });
         return { user, followUser };

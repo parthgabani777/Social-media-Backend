@@ -23,7 +23,6 @@ export const UserSchema = new mongoose.Schema({
         cast: [false, "username can only be string"],
         unique: [true, "Username already exist"],
         required: [true, "Username is Required"],
-        immutable: [true, "Can't change username"],
     },
     password: {
         type: String,
@@ -34,22 +33,24 @@ export const UserSchema = new mongoose.Schema({
             message: "Password Format is wrong",
         },
     },
-    bookmarks: [{ type: Schema.Types.ObjectId, ref: "Post" }],
+    bookmarks: [{ type: Schema.Types.ObjectId, ref: "post" }],
     followings: [
         {
             type: Schema.Types.ObjectId,
-            ref: "User",
+            ref: "user",
         },
     ],
     followers: [
         {
             type: Schema.Types.ObjectId,
-            ref: "User",
+            ref: "user",
         },
     ],
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
+    bio: { type: String },
     picture: { type: String },
+    portfolio: { type: String },
 });
 
 UserSchema.post("save", (error: any, doc: any, next: any) => {

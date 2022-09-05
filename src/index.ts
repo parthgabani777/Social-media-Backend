@@ -6,11 +6,13 @@ import { userRouter } from "./routes/user/users.routes";
 import { errorHandler, HttpException } from "./error";
 import { postRouter } from "./routes/post/post.routes";
 import { commentRouter } from "./routes/comment/comment.routes";
+import cors from "cors";
 
 require("dotenv").config();
 const port = process.env.PORT;
 const app: Express = express();
 
+app.use(cors());
 app.use(bodyParser.json());
 
 dbConnect();

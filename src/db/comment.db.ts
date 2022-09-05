@@ -4,7 +4,7 @@ import { PostModel } from "../models/post.model";
 export async function getComments(postId: string) {
     const post = await PostModel.findOne({ _id: postId });
     if (!post) {
-        throw new HttpException(400, "can't find post");
+        throw new HttpException(404, "can't find post");
     }
     return post.comments;
 }
@@ -20,10 +20,12 @@ export async function addComment(
 ) {
     const post = await PostModel.findOne({ _id: postId });
     if (!post) {
-        throw new HttpException(400, "can't find post");
+        throw new HttpException(404, "can't find post");
     }
-    post.comments.push({ ...commentData, userId: userId });
-    const addedPost = await (await post.save()).populate("comments.userId");
+    post.comments.push({ ...commentData, commentedBy: userId });
+    const addedPost = await (
+        await post.save()
+    ).populate("comments.commentedBy");
     return addedPost.comments;
 }
 
@@ -34,12 +36,17 @@ export async function editComment(
     commentData: CommentDataType
 ) {
     const post = await PostModel.findOneAndUpdate(
-        { _id: postId, "comments.userId": userId, "comments._id": commentId },
+        {
+            _id: postId,
+            "comments.commentedBy": userId,
+            "comments._id": commentId,
+        },
         { $set: { "comments.$.text": commentData.text } },
         { returnDocument: "after" }
     );
+
     if (!post) {
-        throw new HttpException(400, "can't find post");
+        throw new HttpException(404, "can't find post");
     }
     return post.comments;
 }
@@ -65,7 +72,7 @@ export async function deleteComment(
         }
     );
     if (!post) {
-        throw new HttpException(400, "can't find post");
+        throw new HttpException(404, "can't find post");
     }
     return post.comments;
 }

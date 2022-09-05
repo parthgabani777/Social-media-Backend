@@ -1,8 +1,6 @@
 export function responseDataSerialize(data: any[] | {}) {
     return {
-        data: {
-            ...data,
-        },
+        ...data,
     };
 }
 

@@ -1,12 +1,11 @@
 import mongoose, { Schema } from "mongoose";
-import { UserModel } from "./user.model";
 
 export const CommentSchema = new mongoose.Schema({
-    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    commentedBy: { type: Schema.Types.ObjectId, ref: "user", required: true },
     text: { type: String, required: true },
     votes: {
-        upvotedBy: [{ type: Schema.Types.ObjectId, ref: "User" }],
-        downvotedBy: [{ type: Schema.Types.ObjectId, ref: "User" }],
+        upvotedBy: [{ type: Schema.Types.ObjectId, ref: "user" }],
+        downvotedBy: [{ type: Schema.Types.ObjectId, ref: "user" }],
     },
     createdAt: { type: Date, default: Date.now },
 });
@@ -15,10 +14,10 @@ export const PostSchema = new mongoose.Schema({
     content: { type: String, required: true },
     likes: {
         likeCount: { type: Number, required: true },
-        likedBy: [{ type: Schema.Types.ObjectId, ref: "User" }],
-        dislikedBy: [{ type: Schema.Types.ObjectId, ref: "User" }],
+        likedBy: [{ type: Schema.Types.ObjectId, ref: "user" }],
+        dislikedBy: [{ type: Schema.Types.ObjectId, ref: "user" }],
     },
-    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    postCreatedBy: { type: Schema.Types.ObjectId, ref: "user", required: true },
     comments: [CommentSchema],
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },

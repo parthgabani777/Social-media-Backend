@@ -4,7 +4,7 @@ import {
     followUser,
     getAllUsers,
     getBookmarks,
-    getUserByUsername,
+    getUserByUserId,
     removeBookmark,
     unfollowUser,
 } from "../../db/user.db";
@@ -29,7 +29,7 @@ userRouter.post("/edit", RequiresAuth, async (req, res, next) => {
         if (!req.user) {
             throw new HttpException(400, "Bad request");
         }
-        const userData = req.body;
+        const { userData } = req.body;
 
         let updatedUserData = await updateUser(req.user.userId, userData);
         res.status(200).send(responseDataSerialize({ user: updatedUserData }));
@@ -79,7 +79,7 @@ userRouter.post(
 userRouter.get("/:usedId", async (req, res, next) => {
     try {
         const userId = req.params.usedId;
-        const userData = await getUserByUsername(userId);
+        const userData = await getUserByUserId(userId);
         res.status(200).send(responseDataSerialize({ user: userData }));
     } catch (error) {
         next(error);
