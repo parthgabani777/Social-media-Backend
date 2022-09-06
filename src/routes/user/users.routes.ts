@@ -9,9 +9,9 @@ import {
     unfollowUser,
 } from "../../db/user.db";
 import { responseDataSerialize } from "../../serialize";
-import { HttpException } from "../../error";
 import { updateUser } from "../../db/user.db";
 import { RequiresAuth } from "../../middleware/auth.middleware";
+import { v2 as cloudinary } from "cloudinary";
 
 const userRouter = express.Router();
 
@@ -26,10 +26,17 @@ userRouter.get("/", async (req, res, next) => {
 
 userRouter.post("/edit", RequiresAuth, async (req, res, next) => {
     try {
-        if (!req.user) {
-            throw new HttpException(400, "Bad request");
-        }
         const { userData } = req.body;
+
+        const { picture } = userData;
+        if (picture) {
+            const { secure_url } = await cloudinary.uploader.upload(picture, {
+                public_id: req.user.userId,
+                overwrite: true,
+                folder: "/social-media",
+            });
+            userData.picture = secure_url;
+        }
 
         let updatedUserData = await updateUser(req.user.userId, userData);
         res.status(200).send(responseDataSerialize({ user: updatedUserData }));
