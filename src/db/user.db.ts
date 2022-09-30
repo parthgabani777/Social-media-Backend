@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { HttpException } from "../error";
 import { UserModel } from "../models/user.model";
+import { UserInterface, EditUserDataInterface } from "../types/user.types";
 
 export async function getAllUsers() {
     const users = await UserModel.find();

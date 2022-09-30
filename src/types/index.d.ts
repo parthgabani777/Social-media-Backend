@@ -1,8 +1,9 @@
+import { JWTAuthTokenInterface } from "./user.types";
 export {};
 
 declare global {
     namespace Express {
-        export interface Request {
+        interface Request {
             user: JWTAuthTokenInterface;
         }
     }

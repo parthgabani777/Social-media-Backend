@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { HttpException } from "../error";
 import { verifyUsernameToken } from "../jwt";
+import { JWTAuthTokenInterface } from "../types/user.types";
 
 export const RequiresAuth = (
     req: Request,
