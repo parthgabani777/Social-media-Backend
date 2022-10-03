@@ -31,7 +31,7 @@ app.use("/posts", postRouter);
 app.use("/comments", commentRouter);
 
 app.use((req, res) => {
-    throw new HttpException(404, "Can't find provided routes");
+    throw new HttpException(404, "Can't find provided route");
 });
 
 app.use(errorHandler);
