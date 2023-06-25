@@ -1,4 +1,4 @@
-import express, { application, Express } from "express";
+import express, { Express } from "express";
 import { dbConnect } from "./db/db.connect";
 import { authRouter } from "./routes/auth/auth.routes";
 import bodyParser from "body-parser";
