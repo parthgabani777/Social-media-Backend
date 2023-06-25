@@ -19,10 +19,10 @@ app.use(bodyParser.json({ limit: "1MB" }));
 dbConnect();
 
 cloudinary.config({
-    secure: true,
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
+  secure: true,
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 app.use("/auth", authRouter);
@@ -31,11 +31,11 @@ app.use("/posts", postRouter);
 app.use("/comments", commentRouter);
 
 app.use((req, res) => {
-    throw new HttpException(404, "Can't find provided route");
+  throw new HttpException(404, "Can't find provided route");
 });
 
 app.use(errorHandler);
 
 app.listen(port, () => {
-    console.log(`App listening on port ${port}`);
+  console.log(`App listening on port ${port}`);
 });

@@ -3,62 +3,62 @@ import { HttpException } from "../error";
 import { PostModel } from "./post.model";
 
 const passwordFormatValidator = async function (password: string) {
-    return password.match(
-        /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/
-    );
+  return password.match(
+    /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/
+  );
 };
 
 export const UserSchema = new mongoose.Schema({
-    firstName: {
-        type: String,
-        required: [true, "FirstName is Required"],
+  firstName: {
+    type: String,
+    required: [true, "FirstName is Required"],
+  },
+  lastName: {
+    type: String,
+    cast: [true, "LastName can only be string"],
+    required: [true, "LastName is Required"],
+  },
+  username: {
+    type: String,
+    cast: [false, "username can only be string"],
+    unique: [true, "Username already exist"],
+    required: [true, "Username is Required"],
+  },
+  password: {
+    type: String,
+    cast: [false, "password can only be string"],
+    required: [true, "Password is Required"],
+    validate: {
+      validator: passwordFormatValidator,
+      message: "Password Format is wrong",
     },
-    lastName: {
-        type: String,
-        cast: [true, "LastName can only be string"],
-        required: [true, "LastName is Required"],
+  },
+  bookmarks: [{ type: Schema.Types.ObjectId, ref: "post" }],
+  followings: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "user",
     },
-    username: {
-        type: String,
-        cast: [false, "username can only be string"],
-        unique: [true, "Username already exist"],
-        required: [true, "Username is Required"],
+  ],
+  followers: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "user",
     },
-    password: {
-        type: String,
-        cast: [false, "password can only be string"],
-        required: [true, "Password is Required"],
-        validate: {
-            validator: passwordFormatValidator,
-            message: "Password Format is wrong",
-        },
-    },
-    bookmarks: [{ type: Schema.Types.ObjectId, ref: "post" }],
-    followings: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: "user",
-        },
-    ],
-    followers: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: "user",
-        },
-    ],
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now },
-    bio: { type: String },
-    picture: { type: String },
-    portfolio: { type: String },
+  ],
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
+  bio: { type: String },
+  picture: { type: String },
+  portfolio: { type: String },
 });
 
 UserSchema.post("save", (error: any, doc: any, next: any) => {
-    if (error.name === "MongoServerError" && error.code === 11000) {
-        next(new HttpException(409, "Username already exist"));
-    } else {
-        next();
-    }
+  if (error.name === "MongoServerError" && error.code === 11000) {
+    next(new HttpException(409, "Username already exist"));
+  } else {
+    next();
+  }
 });
 
 export const UserModel = mongoose.model("user", UserSchema);

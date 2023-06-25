@@ -1,17 +1,17 @@
 export interface UserInterface {
-    username: string;
-    firstName: string;
-    lastName: string;
-    password: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  password: string;
 }
 
 export interface JWTAuthTokenInterface {
-    userId: string;
+  userId: string;
 }
 
 export interface EditUserDataInterface {
-    username: string;
-    firstName: string;
-    lastName: string;
-    password: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  password: string;
 }
